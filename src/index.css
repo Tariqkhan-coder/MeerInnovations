@@ -1,0 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #002147; /* dark background */
+  color: #d3dce6; /* light text */
+}
+ 
+
+@theme {
+  --color-bg: #002147;
+  --color-dark-blue: #1e293b;
+  --color-accent: #f97316;
+  --color-border-blue: #4b5563;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 9999s ease-in-out 0s, color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+}
+
+@layer utilities {
+  .container {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  @media (min-width: 450px) {
+    .container {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+
+  .shadow-orange-2xl {
+    box-shadow: 0 25px 50px -12px rgba(234, 89, 27, 0.6);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px); 
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards; 
+}
+
+@layer utilities {
+  .container {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  @media (min-width: 450px) {
+    .container {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #f97316 !important; 
+}
+
+.swiper-pagination-bullet {
+  background-color: #cbd5e1; 
+}
+
+

@@ -1,0 +1,42 @@
+export const testimonials = [
+  {
+    id: 1,
+    name: 'Saad Shakeel',
+    position: 'Software Engineer at Google',
+    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300',
+    rating: 5,
+    text: "Meer Innovations transformed my career. Real-world projects and hands-on learning gave me the confidence for job."
+  },
+  {
+    id: 2,
+    name: 'Minahil Farooq',
+    position: 'Frontend Intern at Microsoft',
+    image: 'https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=300',
+    rating: 5,
+    text: "The curriculum at Meer Innovations is top-notch. I went to become a full-stack developer in just 6 months."
+  },
+  {
+    id: 3,
+    name: 'Ch Abdullah',
+    position: 'React Developer at Netflix',
+    image: 'https://images.pexels.com/photos/3785077/pexels-photo-3785077.jpeg?auto=compress&cs=tinysrgb&w=300',
+    rating: 5,
+    text: "Meer Innovations's mentorship and career support was great, I learnt a lot. They helped me successfully in transition. "
+  },
+  {
+    id: 4,
+    name: 'Noor Fatima',
+    position: 'Frontend Lead at Shopify',
+    image: 'https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=300',
+    rating: 5,
+    text: "The quality of education at Meer Innovations is exceptional. The real-world projects included were great."
+  },
+  {
+    id: 5,
+    name: 'M Ahsan',
+    position: 'Backend Engineer at Stripe',
+    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300',
+    rating: 5,
+    text: "Meer Innovations doesn't just teach you to code - they teach you to think like a developer."
+  }
+];

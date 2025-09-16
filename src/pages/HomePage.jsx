@@ -1,0 +1,494 @@
+import { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import Card from "../components/Card";
+import { heroData } from "../data/heroData";
+import { teamMembers } from "../data/teamData";
+import { testimonials } from "../data/testimonialsData";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
+import SingleGridItem from "./CoursesPage/SingleGridItem";
+import { coursesData } from "./CoursesPage/coursesData";
+import { projectsData } from "./ProjectsPage/projectData";
+import SingleProjectItem from "./ProjectsPage/SingleProjectItem";
+import About from "../components/About";
+
+// Typing Animation Component
+const TypingAnimation = () => {
+  const words = [
+    "Courses & Projects",
+    "Real Experiences",
+    "Career Growth",
+    "Industry Skills",
+  ];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    const typingSpeed = isDeleting ? 50 : 100;
+    const pauseDuration = isDeleting ? 500 : 2000;
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && currentText === currentWord) {
+        setTimeout(() => setIsDeleting(true), pauseDuration);
+      } else if (isDeleting && currentText === "") {
+        setIsDeleting(false);
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      } else if (isDeleting) {
+        setCurrentText(currentWord.substring(0, currentText.length - 1));
+      } else {
+        setCurrentText(currentWord.substring(0, currentText.length + 1));
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, currentWordIndex, words]);
+
+  return (
+    <div className="h-32 md:h-36 flex items-start justify-center pt-2">
+      <span className="inline-block text-center leading-tight">
+        <span className="text-orange-500 ">{currentText}</span>
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{
+            duration: 0.5,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+          className="text-orange-400"
+        >
+          |
+        </motion.span>
+      </span>
+    </div>
+  );
+};
+
+// Counter Animation Component
+const AnimatedCounter = ({ end, duration = 2, suffix = "", prefix = "" }) => {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    if (hasAnimated) return;
+
+    const num = parseInt(end.replace(/[^\d]/g, ""));
+
+    let start;
+    const animate = (time) => {
+      if (!start) start = time;
+      const progress = Math.min((time - start) / (duration * 1000), 1);
+
+      const slowdown = 1 - Math.pow(1 - progress, 2);
+      const currCount = Math.floor(slowdown * num);
+
+      setCount(currCount);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setHasAnimated(true);
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = document.getElementById("hero-stats");
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => observer.disconnect();
+  }, [end, duration, hasAnimated]);
+
+  return (
+    <motion.span
+      initial={{ scale: 0.5, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      {prefix}
+      {count}
+      {suffix}
+    </motion.span>
+  );
+};
+
+const HomePage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const swiperRef = useRef(null);
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: false,
+      mirror: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (location.state && location.state.scrollToId) {
+      const element = document.getElementById(location.state.scrollToId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+  }, [location, navigate]);
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Testimonial hover handlers for immediate response
+  const handleTestimonialHover = (isHovering) => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      if (isHovering) {
+        swiperRef.current.autoplay.stop();
+        setIsAutoplayPaused(true);
+      } else {
+        swiperRef.current.autoplay.start();
+        setIsAutoplayPaused(false);
+      }
+    }
+  };
+
+  // Navigation handlers
+  const handleCourseLearnMore = (course) => {
+    console.log("Course Learn More clicked:", course);
+    navigate("/courses");
+  };
+
+  const handleProjectView = (project) => {
+    console.log("Project View clicked:", project);
+    window.open("https://intern-hub-dashboard.vercel.app/", "_blank");
+  };
+
+  const handleProjectSource = (project) => {
+    console.log("Project Source clicked:", project);
+    window.open("https://github.com/attiakhan121", "_blank");
+  };
+
+  return (
+    <>
+      {/* Hero Section */}
+      <section
+        id="hero"
+        className="min-h-screen relative overflow-hidden bg-[#002147]"
+      >
+        <div className="absolute inset-0 "></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+          <div className="text-center">
+            <motion.h1
+              className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+            >
+              Empowering Future
+              <br />
+              <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                Developers
+              </span>{" "}
+              through
+              <br />
+              <TypingAnimation />
+            </motion.h1>
+
+            <motion.p
+              className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+            >
+              Join thousands of developers who have transformed their careers
+              with our hands-on approach to learning modern web development.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.4 }}
+            >
+              <motion.button
+                onClick={() => navigate("/courses")}
+                className="group px-8 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 flex items-center gap-2 text-lg font-semibold transform hover:scale-105"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Explore Courses
+                <ArrowRight
+                  className="group-hover:translate-x-1 transition-transform"
+                  size={20}
+                />
+              </motion.button>
+              <motion.button
+                onClick={() => navigate("/projects")}
+                className="px-8 py-4 border-2 border-orange-400 text-orange-400 rounded-xl hover:bg-orange-400 hover:text-white transition-all duration-300 text-lg font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View Projects
+              </motion.button>
+            </motion.div>
+
+            <motion.div
+              id="hero-stats"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.6 }}
+            >
+              {heroData.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.8 + index * 0.2 }}
+                >
+                  <motion.div
+                    className="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4"
+                    whileHover={{ scale: 1.1, rotate: 360 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {stat.icon}
+                  </motion.div>
+                  <h3 className="text-3xl font-bold text-white mb-2">
+                    <AnimatedCounter
+                      end={stat.number}
+                      duration={2.5}
+                      suffix={
+                        stat.number.includes("+")
+                          ? "+"
+                          : stat.number.includes("%")
+                          ? "%"
+                          : ""
+                      }
+                    />
+                  </h3>
+                  <p className="text-slate-300">{stat.label}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Courses Section */}
+      <section id="courses" className="py-20 bg-[#002140]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="text-center mb-16"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Our <span className="text-orange-400">Courses</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Choose from our comprehensive range of courses designed to take
+              you from beginner to professional developer.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            {coursesData.courses.slice(0, 3).map((course) => (
+              <SingleGridItem course={course} />
+            ))}
+          </div>
+
+          <div
+            className="text-center mt-12"
+            data-aos="fade-up"
+            data-aos-delay="200"
+            data-aos-duration="1000"
+          >
+            <button
+              onClick={() => navigate("/courses")}
+              className="group px-8 py-4 border border-slate-600 text-slate-300 rounded-xl hover:bg-slate-700 hover:border-slate-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 text-lg font-semibold mx-auto transform hover:scale-105"
+            >
+              Explore More Courses
+              <ChevronDown
+                className="group-hover:translate-y-1 transition-transform"
+                size={20}
+              />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Projects Section */}
+      <section id="projects" className="container py-20 bg-[#002147]">
+        <div
+          className="text-center mb-16"
+          data-aos="fade-up"
+          data-aos-duration="1000"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Our <span className="text-orange-400">Projects</span>
+          </h2>
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            Choose from our comprehensive range of courses designed to take you
+            from beginner to professional developer.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+          {projectsData.slice(0, 3).map((project, index) => (
+            <SingleProjectItem key={index} project={project} />
+          ))}
+        </div>
+
+        <div
+          className="text-center mt-12"
+          data-aos="fade-up"
+          data-aos-delay="200"
+          data-aos-duration="1000"
+        >
+          <button
+            onClick={() => navigate("/courses")}
+            className="group px-8 py-4 border border-slate-600 text-slate-300 rounded-xl hover:bg-slate-700 hover:border-slate-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 text-lg font-semibold mx-auto transform hover:scale-105"
+          >
+            Explore More Projects
+            <ChevronDown
+              className="group-hover:translate-y-1 transition-transform"
+              size={20}
+            />
+          </button>
+        </div>
+      </section>
+
+      <About />
+
+      {/* Team Section */}
+      <section id="team" className="py-20 bg-[#002147]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="text-center mb-16"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Meet Our <span className="text-orange-400">Expert Team</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Learn from industry professionals who have worked at top tech
+              companies and are passionate about teaching.
+            </p>
+          </div>
+
+          <div className="grid object-cover object-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {teamMembers.map((member, index) => (
+              <div
+                key={member.id}
+                data-aos="zoom-in"
+                data-aos-delay={index * 100}
+                data-aos-duration="1000"
+              >
+                <Card type="team" data={member} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 bg-[#002140] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="text-center mb-16"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              What Our <span className="text-orange-400">Students Say</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Hear from our successful graduates who are now working at top tech
+              companies worldwide.
+            </p>
+          </div>
+
+          <div className="relative testimonials-wrapper">
+            <div className="testimonials-container">
+              <Swiper
+                modules={[Autoplay, FreeMode]}
+                spaceBetween={20}
+                slidesPerView="auto"
+                freeMode={{
+                  enabled: true,
+                  sticky: false,
+                }}
+                autoplay={{
+                  delay: 0,
+                  disableOnInteraction: false,
+                  reverseDirection: false,
+                }}
+                speed={3000}
+                loop={true}
+                allowTouchMove={true}
+                grabCursor={true}
+                onSwiper={(swiper) => (swiperRef.current = swiper)}
+                breakpoints={{
+                  320: {
+                    spaceBetween: 16,
+                  },
+                  480: {
+                    spaceBetween: 18,
+                  },
+                  768: {
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    spaceBetween: 24,
+                  },
+                }}
+                className="testimonials-swiper"
+              >
+                {testimonials
+                  .concat(testimonials, testimonials)
+                  .map((testimonial, index) => (
+                    <SwiperSlide
+                      key={`testimonial-${index}`}
+                      style={{ width: "auto" }}
+                    >
+                      <div
+                        className="w-[320px] sm:w-[360px] md:w-[380px] lg:w-[400px] testimonial-card"
+                        onMouseEnter={() => handleTestimonialHover(true)}
+                        onMouseLeave={() => handleTestimonialHover(false)}
+                      >
+                        <Card type="testimonial" data={testimonial} />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+              </Swiper>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default HomePage;
